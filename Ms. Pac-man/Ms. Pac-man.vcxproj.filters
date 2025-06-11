@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
+      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
+    </Filter>
+    <Filter Include="Source Files\Character">
+      <UniqueIdentifier>{0074b9e7-c3e6-457e-807b-6931e9cf32e3}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Character">
+      <UniqueIdentifier>{4fc910fa-13da-409f-b4a1-50c1f65395d2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Character\Player">
+      <UniqueIdentifier>{a0161cd2-768b-4ba8-83fb-490825f2b8f2}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Character\Player">
+      <UniqueIdentifier>{5e11a7f4-8e18-4de7-90a6-867dd9aa4695}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Character\Ghost">
+      <UniqueIdentifier>{7ecc3afa-e983-4ec5-9607-5e6d619ddd96}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\Character\Ghost">
+      <UniqueIdentifier>{0ae206ec-864d-4a31-9f98-48f56e5e96a8}</UniqueIdentifier>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="MovementInputComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="PacmanCommands.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="main.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="HUDComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LevelComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="DyingPlayerState.cpp">
+      <Filter>Source Files\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="NormalPlayerState.cpp">
+      <Filter>Source Files\Character\Player</Filter>
+    </ClCompile>
+    <ClCompile Include="PlayerComponent.cpp">
+      <Filter>Source Files\Character\Player</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="..\Minigin\Subject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="HUDComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LevelComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="MovementInputComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PacmanCommands.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="DyingPlayerState.h">
+      <Filter>Header Files\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="NormalPlayerState.h">
+      <Filter>Header Files\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerComponent.h">
+      <Filter>Header Files\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="PlayerState.h">
+      <Filter>Header Files\Character\Player</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>
