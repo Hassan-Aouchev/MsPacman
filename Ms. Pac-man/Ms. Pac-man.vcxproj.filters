@@ -57,6 +57,9 @@
     <ClCompile Include="PlayerComponent.cpp">
       <Filter>Source Files\Character\Player</Filter>
     </ClCompile>
+    <ClCompile Include="GridMovementComponent.cpp">
+      <Filter>Source Files\Character</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Minigin\Subject.h">
@@ -85,6 +88,9 @@
     </ClInclude>
     <ClInclude Include="PlayerState.h">
       <Filter>Header Files\Character\Player</Filter>
+    </ClInclude>
+    <ClInclude Include="GridMovementComponent.h">
+      <Filter>Header Files\Character</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

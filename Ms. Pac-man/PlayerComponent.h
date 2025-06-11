@@ -8,6 +8,7 @@
 class LevelComponent;
 class MovementInputComponent;
 class SpriteComponent;
+class GridMovementComponent;
 
 static int PlayerAmount{};
 
@@ -28,20 +29,11 @@ public:
     void Render() const override {}
 
     LevelComponent* GetLevelComponent() const { return m_pLevelComponent; }
+    GridMovementComponent* GetGridMovementComponent() const { return m_pGridMovement; }
     MovementInputComponent* GetMovementInput() const { return m_pMovementInput; }
     SpriteComponent* GetSpriteComponent() const { return m_pSpriteComponent; }
     AudioService* GetAudioService() const { return m_AudioService; }
 
-    const glm::vec2& GetAccumulatedPosition() const { return m_AccumulatedPosition; }
-    void SetAccumulatedPosition(const glm::vec2& pos) { m_AccumulatedPosition = pos; }
-
-    const glm::vec2& GetPreviousDirection() const { return m_PreviousDirection; }
-    void SetPreviousDirection(const glm::vec2& dir) { m_PreviousDirection = dir; }
-
-    int GetGridX() const { return m_GridX; }
-    int GetGridY() const { return m_GridY; }
-
-    void MovePlayer(float x, float y);
     void ProcessMovement(float deltaTime);
     void CheckDotCollection();
     bool IsAlive() const { return m_Lives.IsAlive(); }
@@ -55,26 +47,22 @@ public:
     int GetScore() const { return 10; }
     int GetLives() const { return m_Lives.amount; }
     int GetPlayerIndex() const { return m_PlayerIndex; }
-    void SetSpeed(float speed) { m_Speed = speed; }
-    float GetSpeed() const { return m_Speed; }
 
 private:
     std::unique_ptr<dae::StateManager<PlayerComponent, PlayerState>> m_StateManager = nullptr;
 
-    glm::vec2 m_AccumulatedPosition{};
-    glm::vec2 m_PreviousDirection{};
-    int m_GridX{};
-    int m_GridY{};
-    const int m_PositionOffset{};
     Lives m_Lives;
     int m_PlayerIndex{};
-    float m_Speed = 5.0f;
 
     std::unique_ptr<Subject> m_pSubject;
     LevelComponent* m_pLevelComponent = nullptr;
     MovementInputComponent* m_pMovementInput = nullptr;
     SpriteComponent* m_pSpriteComponent = nullptr;
     AudioService* m_AudioService = nullptr;
+
+
+
+    GridMovementComponent* m_pGridMovement = nullptr;
 
     const std::string WAKA_PATH;
 };

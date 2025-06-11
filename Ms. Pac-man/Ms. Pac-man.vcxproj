@@ -162,6 +162,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="DyingPlayerState.cpp" />
+    <ClCompile Include="GridMovementComponent.cpp" />
     <ClCompile Include="HUDComponent.cpp" />
     <ClCompile Include="LevelComponent.cpp" />
     <ClCompile Include="main.cpp" />
@@ -172,6 +173,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="DyingPlayerState.h" />
+    <ClInclude Include="GridMovementComponent.h" />
     <ClInclude Include="HUDComponent.h" />
     <ClInclude Include="LevelComponent.h" />
     <ClInclude Include="MovementInputComponent.h" />

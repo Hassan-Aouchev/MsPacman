@@ -1,5 +1,7 @@
 #pragma once
 #include "PlayerState.h"
+
+class GridMovementComponent;
 class NormalPlayerState : public PlayerState
 {
 public:

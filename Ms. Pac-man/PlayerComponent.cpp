@@ -6,17 +6,15 @@
 #include <ResourceManager.h>
 #include "NormalPlayerState.h"
 #include "DyingPlayerState.h"
+#include "GridMovementComponent.h"
 
-PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY,
-    int positionOffset, AudioService* audioService)
+PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY, int positionOffset, AudioService* audioService)
     : BaseComponent(pOwner)
-    , m_AccumulatedPosition{ glm::vec2(gridX,gridY) }
-    , m_GridX{ gridX }
-    , m_GridY{ gridY }
-    , m_PositionOffset{ positionOffset }
     , m_AudioService{ audioService }
     , WAKA_PATH{ "ms_eat_dot.wav" }
 {
+    m_pGridMovement = GetOwner()->AddComponent<GridMovementComponent>(gridX, gridY, positionOffset);
+
     m_pSubject = std::make_unique<Subject>();
 	GameObject* parent = GetOwner()->GetParent();
 	if (parent != nullptr)
@@ -64,90 +62,51 @@ void PlayerComponent::Update(float deltaTime)
 
 }
 
-void PlayerComponent::MovePlayer(float x, float y)
-{
-	if (m_pLevelComponent == nullptr) return;
-	GetOwner()->SetLocalPosition(glm::vec2(x * m_pLevelComponent->TILE_WIDTH + m_PositionOffset, y * m_pLevelComponent->TILE_WIDTH + m_PositionOffset));
-	m_GridX = static_cast<int>((x));
-	m_GridY = static_cast<int>((y));
-}
-
-void PlayerComponent::ProcessMovement(float deltaTime)
+void PlayerComponent::ProcessMovement(float )
 {
     if (m_pLevelComponent == nullptr) return;
     if (m_pSpriteComponent == nullptr) return;
 
-    int roundedX = static_cast<int>(std::round(m_AccumulatedPosition.x));
-    int roundedY = static_cast<int>(std::round(m_AccumulatedPosition.y));
+    const glm::vec2 desiredDirection = m_pGridMovement->GetDesiredDirection();
 
-    float diffX = std::abs(m_AccumulatedPosition.x - roundedX);
-    float diffY = std::abs(m_AccumulatedPosition.y - roundedY);
+    const MovementAnim moveAnim = m_pGridMovement->GetMovementAnim();
 
-    const glm::vec2 desiredDirection = m_pMovementInput->GetMovementInput();
-
-    const float forgivenessThreshold = 0.05f;
-
-    if (diffX < forgivenessThreshold && diffY < forgivenessThreshold)
+    if (moveAnim.moveX)
     {
-        bool canMoveX = (m_pLevelComponent->GetTile(roundedX + static_cast<int>(desiredDirection.x), roundedY).type != TileType::walls);
-        if (desiredDirection.x == 0.f) canMoveX = false;
-        bool mustStopX = (m_pLevelComponent->GetTile(roundedX + static_cast<int>(m_PreviousDirection.x), roundedY).type == TileType::walls);
-
-        bool canMoveY = (m_pLevelComponent->GetTile(roundedX, roundedY + static_cast<int>(desiredDirection.y)).type != TileType::walls);
-        if (desiredDirection.y == 0.f) canMoveY = false;
-        bool mustStopY = (m_pLevelComponent->GetTile(roundedX, roundedY + static_cast<int>(m_PreviousDirection.y)).type == TileType::walls);
-        if (desiredDirection.y == 0.f) canMoveY = false;
-
-        if (canMoveX)
+        if (desiredDirection.x < 0.f)
         {
-            m_PreviousDirection.x = desiredDirection.x;
-            if (desiredDirection.x < 0.f)
-            {
-                m_pSpriteComponent->SetSpriteY(1);
-            }
-            else if (desiredDirection.x > 0.f)
-            {
-                m_pSpriteComponent->SetSpriteY(0);
-            }
-            m_pSpriteComponent->PlaySprite();
-            m_PreviousDirection.y = 0.f;
-            m_AccumulatedPosition.y = static_cast<float>(roundedY);
+            m_pSpriteComponent->SetSpriteY(1);
         }
-        if (canMoveY)
+        else if (desiredDirection.x > 0.f)
         {
-            m_PreviousDirection.y = desiredDirection.y;
-            if (desiredDirection.y < 0.f)
-            {
-                m_pSpriteComponent->SetSpriteY(2);
-            }
-            else if (desiredDirection.y > 0.f)
-            {
-                m_pSpriteComponent->SetSpriteY(3);
-            }
-            m_pSpriteComponent->PlaySprite();
-            m_PreviousDirection.x = 0.f;
-            m_AccumulatedPosition.x = static_cast<float>(roundedX);
+            m_pSpriteComponent->SetSpriteY(0);
         }
-        if (mustStopX)
-        {
-            m_PreviousDirection.x = 0.f;
-            m_pSpriteComponent->StopSprite();
-        }
-        if (mustStopY)
-        {
-            m_PreviousDirection.y = 0.f;
-            m_pSpriteComponent->StopSprite();
-        }
+        m_pSpriteComponent->PlaySprite();
     }
-    m_AccumulatedPosition.x += m_PreviousDirection.x * deltaTime * m_Speed;
-    m_AccumulatedPosition.y += m_PreviousDirection.y * deltaTime * m_Speed;
-    MovePlayer(m_AccumulatedPosition.x, m_AccumulatedPosition.y);
+    if (moveAnim.moveY)
+    {
+        if (desiredDirection.y < 0.f)
+        {
+            m_pSpriteComponent->SetSpriteY(2);
+        }
+        else if (desiredDirection.y > 0.f)
+        {
+            m_pSpriteComponent->SetSpriteY(3);
+        }
+        m_pSpriteComponent->PlaySprite();
+    }
+    if (moveAnim.mustStop)
+    {
+        m_pSpriteComponent->StopSprite();
+    }
 }
 
 void PlayerComponent::CheckDotCollection()
 {
-    int roundedX = static_cast<int>(std::round(m_AccumulatedPosition.x));
-    int roundedY = static_cast<int>(std::round(m_AccumulatedPosition.y));
+    auto accumulatedPos = m_pGridMovement->GetAccumulatedPosition();
+
+    int roundedX = static_cast<int>(std::round(accumulatedPos.x));
+    int roundedY = static_cast<int>(std::round(accumulatedPos.y));
 
     if (m_pLevelComponent->GetTile(roundedX, roundedY).type == TileType::dots)
     {
@@ -163,7 +122,7 @@ void PlayerComponent::SetLevelComponent(LevelComponent* levelComponent)
 	{
 		std::cout << "no level found on parent" << std::endl;
 	}
-	MovePlayer(m_AccumulatedPosition.x, m_AccumulatedPosition.y);
+    m_pGridMovement->SetLevelComponent(levelComponent);
 }
 
 void PlayerComponent::LoseLife()
