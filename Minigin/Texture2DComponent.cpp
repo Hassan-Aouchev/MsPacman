@@ -57,7 +57,7 @@ void Texture2DComponent::Render() const
         Renderer::GetInstance().RenderTexture(*m_texture, pos.x, pos.y,
             static_cast<float>(m_texture->GetSize().x),
             static_cast<float>(m_texture->GetSize().y),
-            m_Scale, m_rotation, centerPtr, sdlFlip);
+            m_Scale, m_rotation, centerPtr, sdlFlip,m_index);
     }
 }
 
@@ -75,5 +75,5 @@ void Texture2DComponent::SetSprite(int rows, int cols)
 
 void Texture2DComponent::SetSpriteIndex(int index)
 {
-    m_texture->SetSpriteIndex(index);
+    m_index = index;
 }

@@ -60,6 +60,15 @@
     <ClCompile Include="GridMovementComponent.cpp">
       <Filter>Source Files\Character</Filter>
     </ClCompile>
+    <ClCompile Include="GhostComponent.cpp">
+      <Filter>Source Files\Character\Ghost</Filter>
+    </ClCompile>
+    <ClCompile Include="ChaseGhostState.cpp">
+      <Filter>Source Files\Character\Ghost</Filter>
+    </ClCompile>
+    <ClCompile Include="ScatterGhostState.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\Minigin\Subject.h">
@@ -91,6 +100,18 @@
     </ClInclude>
     <ClInclude Include="GridMovementComponent.h">
       <Filter>Header Files\Character</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostComponent.h">
+      <Filter>Header Files\Character\Ghost</Filter>
+    </ClInclude>
+    <ClInclude Include="GhostState.h">
+      <Filter>Header Files\Character\Ghost</Filter>
+    </ClInclude>
+    <ClInclude Include="ChaseGhostState.h">
+      <Filter>Header Files\Character\Ghost</Filter>
+    </ClInclude>
+    <ClInclude Include="ScatterGhostState.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

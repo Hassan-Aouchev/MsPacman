@@ -79,13 +79,13 @@ void Renderer::RenderTexture(const Texture2D& texture, const float x, const floa
 	SDL_RenderCopy(GetSDLRenderer(), texture.GetSDLTexture(), nullptr, &dst);
 }
 
-void Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width, const float height,const float scale) const
+void Renderer::RenderTexture(const Texture2D& texture, const float x, const float y, const float width, const float height,const float scale,int spriteIndex) const
 {
 
 	int spriteWidth =  static_cast<int>(width) / texture.GetRows();
 	int spriteHeight = static_cast<int>(height) / (texture.GetCols());
-	int row = texture.GetIndex() % texture.GetRows();
-	int col = texture.GetIndex() / texture.GetRows();
+	int row = spriteIndex % texture.GetRows();
+	int col = spriteIndex / texture.GetRows();
 
 	SDL_Rect dst1{};
 	dst1.x = static_cast<int>(row*spriteWidth);
@@ -107,12 +107,12 @@ void Renderer::RenderTexture(const Texture2D& texture, const float x, const floa
 	const float width, const float height, const float scale,
 	const float rotation = 0.0f,
 	const SDL_Point* center = nullptr,
-	const SDL_RendererFlip flip = SDL_FLIP_NONE) const
+	const SDL_RendererFlip flip = SDL_FLIP_NONE,int spriteIndex) const
 {
 	int spriteWidth = static_cast<int>(width) / texture.GetRows();
 	int spriteHeight = static_cast<int>(height) / texture.GetCols();
-	int row = texture.GetIndex() % texture.GetRows();
-	int col = texture.GetIndex() / texture.GetRows();
+	int row = spriteIndex % texture.GetRows();
+	int col = spriteIndex / texture.GetRows();
 
 	SDL_Rect src{};
 	src.x = static_cast<int>(row * spriteWidth);

@@ -44,5 +44,8 @@ private:
     float m_Scale{ 1.0f };
     float m_rotation = 0.0f;
     bool m_hasCustomCenter = false;
+
+    int m_index{};
+
     FlipMode m_flip = FlipMode::None;
 };

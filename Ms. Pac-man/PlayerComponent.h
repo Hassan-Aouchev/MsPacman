@@ -43,10 +43,10 @@ public:
     Subject* GetSubject() const { return m_pSubject.get(); }
 
     void LoseLife();
-    void AddScore() { }
-    int GetScore() const { return 10; }
     int GetLives() const { return m_Lives.amount; }
     int GetPlayerIndex() const { return m_PlayerIndex; }
+
+    const glm::vec2& GetFacingDirection()const { return m_FacingDirection; }
 
 private:
     std::unique_ptr<dae::StateManager<PlayerComponent, PlayerState>> m_StateManager = nullptr;
@@ -60,7 +60,7 @@ private:
     SpriteComponent* m_pSpriteComponent = nullptr;
     AudioService* m_AudioService = nullptr;
 
-
+    glm::vec2 m_FacingDirection{};
 
     GridMovementComponent* m_pGridMovement = nullptr;
 

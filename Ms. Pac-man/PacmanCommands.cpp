@@ -26,5 +26,4 @@ Score::Score(GameObject* gameObject) : GameObjectCommand(gameObject)
 
 void Score::Execute()
 {
-	GetGameObject()->GetComponent<PlayerComponent>()->AddScore();
 }

@@ -23,6 +23,7 @@
 #include <SDLAudioService.h>
 #include "ServiceLocator.h"
 #include "PacmanCommands.h"
+#include "GhostComponent.h"
 
 const int SCREEN_WIDTH = 448;
 const int SCREEN_HEIGHT = 496;
@@ -32,6 +33,60 @@ void loadServices()
 {
     std::unique_ptr<SDLAudioService> sdlAudioService = std::make_unique<SDLAudioService>();
     ServiceLocator::ProvideAudioService(std::move(sdlAudioService));
+}
+
+static PlayerComponent* LoadPlayer(Scene& scene, GameObject* pLevel,bool useKeyboard,int playerIndex=-1)
+{
+    auto playerObject = std::make_unique<GameObject>();
+    playerObject->SetParent(pLevel, false);
+
+    auto playerSprite = std::make_unique<GameObject>();
+    playerSprite->SetParent(playerObject.get(), false);
+    playerSprite->SetLocalPosition(glm::vec2(-8, -8));
+    auto* playerTexture = playerSprite->AddComponent<Texture2DComponent>();
+    playerTexture->SetTexture("sprite_msPacman.png");
+    playerTexture->SetScale(2.0f);
+    playerSprite->AddComponent<SpriteComponent>(3, 4, 10.f);
+
+    playerObject->AddComponent<MovementInputComponent>();
+    playerObject->SetPosition(0, 0);
+
+    auto* playerComponent = playerObject->AddComponent<PlayerComponent>(1, 1, 0, ServiceLocator::GetAudioService());
+
+    GameObject* playerPtr = playerObject.get();
+    scene.Add(std::move(playerObject));
+    scene.Add(std::move(playerSprite));
+    if(useKeyboard)
+    {
+        InputManager::GetInstance().BindAction(SDLK_z,
+            std::make_unique<Move>(playerPtr, glm::vec2(0, -1)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(SDLK_s,
+            std::make_unique<Move>(playerPtr, glm::vec2(0, 1)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(SDLK_d,
+            std::make_unique<Move>(playerPtr, glm::vec2(1, 0)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(SDLK_q,
+            std::make_unique<Move>(playerPtr, glm::vec2(-1, 0)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(SDLK_x,
+            std::make_unique<Damage>(playerPtr), ButtonState::Pressed);
+        InputManager::GetInstance().BindAction(SDLK_c,
+            std::make_unique<Score>(playerPtr), ButtonState::Pressed);
+    }
+    else
+    {
+        InputManager::GetInstance().BindAction(ControllerButton::DPAD_UP, playerIndex,
+            std::make_unique<Move>(playerPtr, glm::vec2(0, -1)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(ControllerButton::DPAD_DOWN, playerIndex,
+            std::make_unique<Move>(playerPtr, glm::vec2(0, 1)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(ControllerButton::DPAD_RIGHT, playerIndex,
+            std::make_unique<Move>(playerPtr, glm::vec2(1, 0)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(ControllerButton::DPAD_LEFT, playerIndex,
+            std::make_unique<Move>(playerPtr, glm::vec2(-1, 0)), ButtonState::Down);
+        InputManager::GetInstance().BindAction(ControllerButton::BUTTON_LEFT, playerIndex,
+            std::make_unique<Damage>(playerPtr), ButtonState::Pressed);
+        InputManager::GetInstance().BindAction(ControllerButton::BUTTON_DOWN, playerIndex,
+            std::make_unique<Score>(playerPtr), ButtonState::Pressed);
+    }
+    return playerComponent;
 }
 
 void load()
@@ -78,65 +133,108 @@ void load()
     scene.Add(std::move(levelObject));
 
     // Player 1
-    auto player1Object = std::make_unique<GameObject>();
-    player1Object->SetParent(levelPtr, false);
-    auto* player1Texture = player1Object->AddComponent<Texture2DComponent>();
-    player1Texture->SetTexture("Untitled-1.png");
-    player1Texture->SetScale(2.0f);
-    player1Object->AddComponent<MovementInputComponent>();
-    player1Object->SetPosition(250, 250);
-    auto* player1Component = player1Object->AddComponent<PlayerComponent>(14, 16, 8, ServiceLocator::GetAudioService());
-    GameObject* player1Ptr = player1Object.get();
-    scene.Add(std::move(player1Object));
+    
+    auto player1Component = LoadPlayer(scene,levelPtr,true);
+    auto player2Component = LoadPlayer(scene, levelPtr, false, 0);
 
-    // Player 1 input bindings
-    InputManager::GetInstance().BindAction(ControllerButton::DPAD_UP, 0,
-        std::make_unique<Move>(player1Ptr, glm::vec2(0, -1)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(ControllerButton::DPAD_DOWN, 0,
-        std::make_unique<Move>(player1Ptr, glm::vec2(0, 1)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(ControllerButton::DPAD_RIGHT, 0,
-        std::make_unique<Move>(player1Ptr, glm::vec2(1, 0)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(ControllerButton::DPAD_LEFT, 0,
-        std::make_unique<Move>(player1Ptr, glm::vec2(-1, 0)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(ControllerButton::BUTTON_LEFT, 0,
-        std::make_unique<Damage>(player1Ptr), ButtonState::Pressed);
-    InputManager::GetInstance().BindAction(ControllerButton::BUTTON_DOWN, 0,
-        std::make_unique<Score>(player1Ptr), ButtonState::Pressed);
+    auto ghostRedObject = std::make_unique<GameObject>();
 
-    // Player 2
-    auto player2Object = std::make_unique<GameObject>();
-    player2Object->SetParent(levelPtr, false);
+    auto redPtr = ghostRedObject.get();
 
-    auto player2Sprite = std::make_unique<GameObject>();
-    player2Sprite->SetParent(player2Object.get(), false);
-    player2Sprite->SetLocalPosition(glm::vec2(-8, -8));
-    auto* player2Texture = player2Sprite->AddComponent<Texture2DComponent>();
-    player2Texture->SetTexture("sprite_msPacman.png");
-    player2Texture->SetScale(2.0f);
-    player2Sprite->AddComponent<SpriteComponent>(3, 4, 10.f);
+    {
+        ghostRedObject->SetParent(levelPtr, false);
 
-    player2Object->AddComponent<MovementInputComponent>();
-    player2Object->SetPosition(0, 0);
-    auto* player2Component = player2Object->AddComponent<PlayerComponent>(1, 1, 0, ServiceLocator::GetAudioService());
+        auto ghostSprite = std::make_unique<GameObject>();
+        ghostSprite->SetParent(ghostRedObject.get(), false);
+        ghostSprite->SetLocalPosition(glm::vec2(-8, -8));
+        auto* playerTexture = ghostSprite->AddComponent<Texture2DComponent>();
+        playerTexture->SetTexture("Sprite_RedGhost.png");
+        playerTexture->SetScale(2.0f);
+        ghostSprite->AddComponent<SpriteComponent>(2, 4, 10.f);
 
-    GameObject* player2Ptr = player2Object.get();
-    scene.Add(std::move(player2Object));
-    scene.Add(std::move(player2Sprite));
+        ghostRedObject->AddComponent<MovementInputComponent>();
+        ghostRedObject->SetPosition(0, 0);
 
-    // Player 2 input bindings
-    InputManager::GetInstance().BindAction(SDLK_z,
-        std::make_unique<Move>(player2Ptr, glm::vec2(0, -1)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(SDLK_s,
-        std::make_unique<Move>(player2Ptr, glm::vec2(0, 1)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(SDLK_d,
-        std::make_unique<Move>(player2Ptr, glm::vec2(1, 0)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(SDLK_q,
-        std::make_unique<Move>(player2Ptr, glm::vec2(-1, 0)), ButtonState::Down);
-    InputManager::GetInstance().BindAction(SDLK_x,
-        std::make_unique<Damage>(player2Ptr), ButtonState::Pressed);
-    InputManager::GetInstance().BindAction(SDLK_c,
-        std::make_unique<Score>(player2Ptr), ButtonState::Pressed);
+        auto ghostComponent = ghostRedObject->AddComponent<GhostComponent>(10, 11,GhostType::Red);
 
+        ghostComponent->SetPacman(player1Component->GetOwner());
+
+        scene.Add(std::move(ghostRedObject));
+        scene.Add(std::move(ghostSprite));
+    }
+
+    auto ghostPinkObject = std::make_unique<GameObject>();
+
+    {
+        ghostPinkObject->SetParent(levelPtr, false);
+
+        auto ghostSprite = std::make_unique<GameObject>();
+        ghostSprite->SetParent(ghostPinkObject.get(), false);
+        ghostSprite->SetLocalPosition(glm::vec2(-8, -8));
+        auto* playerTexture = ghostSprite->AddComponent<Texture2DComponent>();
+        playerTexture->SetTexture("Sprite_PinkGhost.png");
+        playerTexture->SetScale(2.0f);
+        ghostSprite->AddComponent<SpriteComponent>(2, 4, 10.f);
+
+        ghostPinkObject->AddComponent<MovementInputComponent>();
+        ghostPinkObject->SetPosition(0, 0);
+
+        auto ghostComponent = ghostPinkObject->AddComponent<GhostComponent>(11, 11, GhostType::Pink);
+
+        ghostComponent->SetPacman(player1Component->GetOwner());
+
+        scene.Add(std::move(ghostPinkObject));
+        scene.Add(std::move(ghostSprite));
+    }
+
+    auto ghostCyanObject = std::make_unique<GameObject>();
+
+    {
+        ghostCyanObject->SetParent(levelPtr, false);
+
+        auto ghostSprite = std::make_unique<GameObject>();
+        ghostSprite->SetParent(ghostCyanObject.get(), false);
+        ghostSprite->SetLocalPosition(glm::vec2(-8, -8));
+        auto* playerTexture = ghostSprite->AddComponent<Texture2DComponent>();
+        playerTexture->SetTexture("Sprite_CyanGhost.png");
+        playerTexture->SetScale(2.0f);
+        ghostSprite->AddComponent<SpriteComponent>(2, 4, 10.f);
+
+        ghostCyanObject->AddComponent<MovementInputComponent>();
+        ghostCyanObject->SetPosition(0, 0);
+
+        auto ghostComponent = ghostCyanObject->AddComponent<GhostComponent>(16, 11, GhostType::Cyan);
+
+        ghostComponent->SetPacman(player1Component->GetOwner());
+        ghostComponent->SetBlinky(redPtr);
+
+        scene.Add(std::move(ghostCyanObject));
+        scene.Add(std::move(ghostSprite));
+    }
+
+    auto ghostOrangeObject = std::make_unique<GameObject>();
+
+    {
+        ghostOrangeObject->SetParent(levelPtr, false);
+
+        auto ghostSprite = std::make_unique<GameObject>();
+        ghostSprite->SetParent(ghostOrangeObject.get(), false);
+        ghostSprite->SetLocalPosition(glm::vec2(-8, -8));
+        auto* playerTexture = ghostSprite->AddComponent<Texture2DComponent>();
+        playerTexture->SetTexture("Sprite_OrangeGhost.png");
+        playerTexture->SetScale(2.0f);
+        ghostSprite->AddComponent<SpriteComponent>(2, 4, 10.f);
+
+        ghostOrangeObject->AddComponent<MovementInputComponent>();
+        ghostOrangeObject->SetPosition(0, 0);
+
+        auto ghostComponent = ghostOrangeObject->AddComponent<GhostComponent>(17, 11, GhostType::Orange);
+
+        ghostComponent->SetPacman(player1Component->GetOwner());
+
+        scene.Add(std::move(ghostOrangeObject));
+        scene.Add(std::move(ghostSprite));
+    }
     // HUD setup
     auto hudObject = std::make_unique<GameObject>();
     hudObject->SetPosition(20, 80);
@@ -171,6 +269,7 @@ void load()
     player1Component->GetSubject()->AddObserver(hudComponent);
     player2Component->GetSubject()->AddObserver(hudComponent);
     scene.Add(std::move(hudObject));
+
 
 }
 

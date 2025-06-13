@@ -15,7 +15,7 @@ struct MovementAnim {
 };
 
 class LevelComponent;
-class GridMovementComponent :
+class GridMovementComponent:
     public BaseComponent
 {
 public:
@@ -35,7 +35,7 @@ public:
     int GetGridX() const { return m_GridX; }
     int GetGridY() const { return m_GridY; }
 
-    void SetLevelComponent(LevelComponent* pLevelComponent) { m_pLevelComponent = pLevelComponent; }
+    void SetLevelComponent(LevelComponent* pLevelComponent);
     LevelComponent* GetLevelComponent() const { return m_pLevelComponent; }
 
     const MovementAnim& GetMovementAnim()const { return m_MovementAnim; }

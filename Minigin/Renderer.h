@@ -29,9 +29,9 @@ public:
 	int GetBorderSize()const { return BORDER_WIDTH; }
 
 	void RenderTexture(const Texture2D& texture, float x, float y) const;
-	void RenderTexture(const Texture2D& texture, float x, float y, float width, float height,float scale) const;
+	void RenderTexture(const Texture2D& texture, float x, float y, float width, float height,float scale, int spriteIndex = 0) const;
 
-	void RenderTexture(const Texture2D& texture, const float x, const float y, const float width, const float height, const float scale, const float rotation, const SDL_Point* center, const SDL_RendererFlip flip) const;
+	void RenderTexture(const Texture2D& texture, const float x, const float y, const float width, const float height, const float scale, const float rotation, const SDL_Point* center, const SDL_RendererFlip flip, int spriteIndex = 0) const;
 
 	SDL_Renderer* GetSDLRenderer() const;
 

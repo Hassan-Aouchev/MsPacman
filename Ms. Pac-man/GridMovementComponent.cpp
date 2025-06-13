@@ -8,6 +8,11 @@ m_GridY(gridY),
 m_PositionOffset(positionOffset),
 m_AccumulatedPosition{ glm::vec2(gridX,gridY) }
 {
+}
+
+void GridMovementComponent::SetLevelComponent(LevelComponent* pLevelComponent)
+{
+    m_pLevelComponent = pLevelComponent;
     MoveToPosition(m_AccumulatedPosition.x, m_AccumulatedPosition.y);
 }
 
@@ -15,6 +20,7 @@ void GridMovementComponent::UpdatePosition(float deltaTime)
 {
     if (m_pLevelComponent == nullptr) return;
 
+    m_MovementAnim.Set(false, false, false);
     int roundedX = static_cast<int>(std::round(m_AccumulatedPosition.x));
     int roundedY = static_cast<int>(std::round(m_AccumulatedPosition.y));
 

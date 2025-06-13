@@ -24,11 +24,10 @@ public:
 
     int GetRows() const { return m_rows; }
     int GetCols() const { return m_cols; }
-    int GetIndex() const { return m_index; }
 
 private:
     int m_rows{ 1 };
     int m_cols{ 1 };
-    int m_index{};
+
     SDL_Texture* m_texture;
 };

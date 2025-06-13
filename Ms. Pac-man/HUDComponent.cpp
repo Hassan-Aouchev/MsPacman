@@ -38,16 +38,16 @@ void HUDComponent::Notify(GameObject* object, const std::string& event)
 		}
 	}
 
-	if (event == "ScoreAdded")
+	if (event == "DotEaten")
 	{
 		auto player = object->GetComponent<PlayerComponent>();
 		if (player->GetPlayerIndex() == 0 )
 		{
-			m_ScorePlayer1 += player->GetScore();
+			m_ScorePlayer1 += 10;
 			m_pScoreText1->SetText("Score: " + std::to_string(m_ScorePlayer1));
 		}
 		else{
-			m_ScorePlayer2 += player->GetScore();
+			m_ScorePlayer2 += 10;
 			m_pScoreText2->SetText("Score: " + std::to_string(m_ScorePlayer2));
 		}
 	}

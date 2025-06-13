@@ -101,7 +101,7 @@ namespace dae
                         }
                     }
                 }
-
+                if(m_Context)
                 m_CurrentState->Update(m_Context, deltaTime);
             }
         }

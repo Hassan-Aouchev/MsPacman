@@ -161,7 +161,9 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="ChaseGhostState.cpp" />
     <ClCompile Include="DyingPlayerState.cpp" />
+    <ClCompile Include="GhostComponent.cpp" />
     <ClCompile Include="GridMovementComponent.cpp" />
     <ClCompile Include="HUDComponent.cpp" />
     <ClCompile Include="LevelComponent.cpp" />
@@ -170,9 +172,13 @@
     <ClCompile Include="NormalPlayerState.cpp" />
     <ClCompile Include="PacmanCommands.cpp" />
     <ClCompile Include="PlayerComponent.cpp" />
+    <ClCompile Include="ScatterGhostState.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="ChaseGhostState.h" />
     <ClInclude Include="DyingPlayerState.h" />
+    <ClInclude Include="GhostComponent.h" />
+    <ClInclude Include="GhostState.h" />
     <ClInclude Include="GridMovementComponent.h" />
     <ClInclude Include="HUDComponent.h" />
     <ClInclude Include="LevelComponent.h" />
@@ -182,6 +188,7 @@
     <ClInclude Include="PlayerComponent.h" />
     <ClInclude Include="..\Minigin\Subject.h" />
     <ClInclude Include="PlayerState.h" />
+    <ClInclude Include="ScatterGhostState.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

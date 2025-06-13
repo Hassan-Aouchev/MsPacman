@@ -32,14 +32,15 @@ PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY, int p
     if (spriteChild)
     {
         m_pSpriteComponent = spriteChild->GetComponent<SpriteComponent>();
-    }
-    if (m_pSpriteComponent)
-    {
-        m_pSpriteComponent->SetSpriteIndex(1, 0);
-        m_pSpriteComponent->PlaySpriteHor();
-    }
-    else {
-        std::cout << "No sprite component found" << std::endl;
+
+        if (m_pSpriteComponent)
+        {
+            m_pSpriteComponent->SetSpriteIndex(1, 0);
+            m_pSpriteComponent->PlaySpriteHor();
+        }
+        else {
+            std::cout << "No sprite component found" << std::endl;
+        }
     }
 
 	++PlayerAmount;
@@ -66,20 +67,23 @@ void PlayerComponent::ProcessMovement(float )
 {
     if (m_pLevelComponent == nullptr) return;
     if (m_pSpriteComponent == nullptr) return;
+    if (m_pGridMovement == nullptr) return;
 
-    const glm::vec2 desiredDirection = m_pGridMovement->GetDesiredDirection();
+    const glm::vec2& desiredDirection = m_pGridMovement->GetDesiredDirection();
 
-    const MovementAnim moveAnim = m_pGridMovement->GetMovementAnim();
+    const MovementAnim& moveAnim = m_pGridMovement->GetMovementAnim();
 
     if (moveAnim.moveX)
     {
         if (desiredDirection.x < 0.f)
         {
             m_pSpriteComponent->SetSpriteY(1);
+            m_FacingDirection = glm::vec2(-1, 0);
         }
         else if (desiredDirection.x > 0.f)
         {
             m_pSpriteComponent->SetSpriteY(0);
+            m_FacingDirection = glm::vec2(1, 0);
         }
         m_pSpriteComponent->PlaySprite();
     }
@@ -88,10 +92,12 @@ void PlayerComponent::ProcessMovement(float )
         if (desiredDirection.y < 0.f)
         {
             m_pSpriteComponent->SetSpriteY(2);
+            m_FacingDirection = glm::vec2(0, -1);
         }
         else if (desiredDirection.y > 0.f)
         {
             m_pSpriteComponent->SetSpriteY(3);
+            m_FacingDirection = glm::vec2(0, 1);
         }
         m_pSpriteComponent->PlaySprite();
     }
@@ -112,6 +118,7 @@ void PlayerComponent::CheckDotCollection()
     {
         m_pLevelComponent->SetTile(roundedX, roundedY, TileType::empty);
         m_AudioService->PlaySound(WAKA_PATH);
+        GetSubject()->NotifyObservers(GetOwner(), "DotEaten");
     }
 }
 

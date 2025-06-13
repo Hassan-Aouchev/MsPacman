@@ -16,11 +16,6 @@ glm::ivec2 Texture2D::GetSize() const
 	return { dst.w,dst.h };
 }
 
-void Texture2D::SetSpriteIndex(int index)
-{
-	m_index = index;
-}
-
 void Texture2D::SetSprite(int rows, int cols)
 {
 	m_rows = rows;
