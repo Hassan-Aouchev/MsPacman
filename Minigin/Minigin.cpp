@@ -39,7 +39,7 @@ void PrintSDLVersion()
 	printf("We are linking against SDL_image version %u.%u.%u.\n",
 		version.major, version.minor, version.patch);
 
-	SDL_TTF_VERSION(&version)
+	SDL_TTF_VERSION(&version);
 	printf("We compiled against SDL_ttf version %u.%u.%u ...\n",
 		version.major, version.minor, version.patch);
 
@@ -108,10 +108,12 @@ void dae::Minigin::Run(const std::function<void()>& load)
 		const auto currentTime = std::chrono::high_resolution_clock::now();
 		float deltaTime = std::chrono::duration<float>(currentTime - lastTime).count();
 		lastTime = currentTime;
-		lag += deltaTime;
 
 		if (deltaTime > 0.1f)
-			continue;
+			deltaTime = 0.1f;
+
+		lag += deltaTime;
+
 
 		doContinue = input.ProcessInput();
 		while (lag >= FIXED_TIME_STEP)

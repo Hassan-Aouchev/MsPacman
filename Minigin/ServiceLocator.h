@@ -28,7 +28,6 @@ public:
 			}
 			return *m_NullAudioService.get();
 		}
-
 	}
 	static void ToggleSound() { m_MuteSound = !m_MuteSound; }
 

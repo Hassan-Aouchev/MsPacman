@@ -68,12 +68,8 @@ static PlayerComponent* LoadPlayer(Scene& scene, GameObject* pLevel,bool useKeyb
             std::make_unique<Move>(playerPtr, glm::vec2(1, 0)), ButtonState::Down);
         InputManager::GetInstance().BindAction(SDLK_q,
             std::make_unique<Move>(playerPtr, glm::vec2(-1, 0)), ButtonState::Down);
-        InputManager::GetInstance().BindAction(SDLK_x,
-            std::make_unique<Damage>(playerPtr), ButtonState::Pressed);
-        InputManager::GetInstance().BindAction(SDLK_c,
-            std::make_unique<Score>(playerPtr), ButtonState::Pressed);
     }
-    else
+    if(playerIndex>=0)
     {
         InputManager::GetInstance().BindAction(ControllerButton::DPAD_UP, playerIndex,
             std::make_unique<Move>(playerPtr, glm::vec2(0, -1)), ButtonState::Down);
@@ -83,10 +79,6 @@ static PlayerComponent* LoadPlayer(Scene& scene, GameObject* pLevel,bool useKeyb
             std::make_unique<Move>(playerPtr, glm::vec2(1, 0)), ButtonState::Down);
         InputManager::GetInstance().BindAction(ControllerButton::DPAD_LEFT, playerIndex,
             std::make_unique<Move>(playerPtr, glm::vec2(-1, 0)), ButtonState::Down);
-        InputManager::GetInstance().BindAction(ControllerButton::BUTTON_LEFT, playerIndex,
-            std::make_unique<Damage>(playerPtr), ButtonState::Pressed);
-        InputManager::GetInstance().BindAction(ControllerButton::BUTTON_DOWN, playerIndex,
-            std::make_unique<Score>(playerPtr), ButtonState::Pressed);
     }
     return playerComponent;
 }
@@ -125,7 +117,7 @@ void load()
     GameObject* levelPtr = levelObject.get();
     scene.Add(std::move(levelObject));
 
-    auto player1Component = LoadPlayer(scene,levelPtr,true);
+    auto player1Component = LoadPlayer(scene,levelPtr,true,0);//also add a controller
     //auto player2Component = LoadPlayer(scene, levelPtr, false, 0);
 
     auto ghostRedObject = std::make_unique<GameObject>();
