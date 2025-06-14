@@ -6,7 +6,9 @@ class PlayerComponent;
 class ScatterCondition :public GhostCondition
 {
 public:
-	bool Evaluate(GhostComponent* const) override { return false; }
+	bool Evaluate(GhostComponent* const ghost, float deltaTime) override;
+private:
+	float m_Timer{};
 };
 
 class ChaseGhostState : public GhostState

@@ -15,9 +15,9 @@ class Renderer final : public Singleton<Renderer>
 	SDL_Color m_clearColor{};	
 
 
-	int SCREEN_WIDTH;
-	int SCREEN_HEIGHT;
-	int BORDER_WIDTH;// for arcade type games with borders
+	int SCREEN_WIDTH{};
+	int SCREEN_HEIGHT{};
+	int BORDER_WIDTH{};// for arcade type games with borders
 
 public:
 	void Init(SDL_Window* window,int screenWidth,int screenHeight,int borderSize);

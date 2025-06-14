@@ -2,7 +2,6 @@
 #include "BaseComponent.h"
 #include <StateManager.h>
 #include "Subject.h"
-#include "AudioService.h"
 #include "PlayerState.h"
 
 class LevelComponent;
@@ -23,7 +22,7 @@ struct Lives final
 class PlayerComponent : public BaseComponent
 {
 public:
-    PlayerComponent(GameObject* pOwner, int gridX, int gridY, int positionOffset, AudioService* audioService);
+    PlayerComponent(GameObject* pOwner, int gridX, int gridY, int positionOffset);
 
     void Update(float deltaTime) override;
     void Render() const override {}
@@ -32,17 +31,20 @@ public:
     GridMovementComponent* GetGridMovementComponent() const { return m_pGridMovement; }
     MovementInputComponent* GetMovementInput() const { return m_pMovementInput; }
     SpriteComponent* GetSpriteComponent() const { return m_pSpriteComponent; }
-    AudioService* GetAudioService() const { return m_AudioService; }
 
     void ProcessMovement(float deltaTime);
     void CheckDotCollection();
-    bool IsAlive() const { return m_Lives.IsAlive(); }
 
     void SetLevelComponent(LevelComponent* levelComponent);
 
     Subject* GetSubject() const { return m_pSubject.get(); }
 
     void LoseLife();
+
+    bool IsDead() const { return m_IsDead; }
+
+    void Retry() { m_IsDead = false; }
+
     int GetLives() const { return m_Lives.amount; }
     int GetPlayerIndex() const { return m_PlayerIndex; }
 
@@ -58,11 +60,11 @@ private:
     LevelComponent* m_pLevelComponent = nullptr;
     MovementInputComponent* m_pMovementInput = nullptr;
     SpriteComponent* m_pSpriteComponent = nullptr;
-    AudioService* m_AudioService = nullptr;
 
     glm::vec2 m_FacingDirection{};
 
     GridMovementComponent* m_pGridMovement = nullptr;
 
     const std::string WAKA_PATH;
+    bool m_IsDead{ false };
 };

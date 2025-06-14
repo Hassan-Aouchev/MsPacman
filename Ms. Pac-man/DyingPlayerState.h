@@ -4,7 +4,14 @@ class Texture2DComponent;
 
 class DeathCondition : public PlayerCondition
 {
-	virtual bool Evaluate(PlayerComponent* player) override;
+public:
+	bool Evaluate(PlayerComponent* player, float deltaTime) override;
+};
+
+class RetryCondition : public PlayerCondition
+{
+public:
+	bool Evaluate(PlayerComponent* player, float deltaTime) override;
 };
 
 class DyingPlayerState : public PlayerState
@@ -22,7 +29,7 @@ public:
 
 private:
 	float m_currentRotation = 0.0f;
-	float m_rotationSpeed = 720.0f;
+	float m_rotationSpeed = 360.0f;
 
 	Texture2DComponent* m_TextureComp;
 };

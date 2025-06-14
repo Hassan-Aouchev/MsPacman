@@ -13,28 +13,28 @@ namespace dae
     public:
         StateManager(Context* context, StateType* pStartState) : m_Context(context) { ChangeState(pStartState); }
 
-        void AddTransition(std::unique_ptr<StateType> startState,
-            std::unique_ptr<StateType> toState,
-            std::unique_ptr<ConditionType> condition)
+        void AddTransition(StateType* startState,
+            StateType* toState,
+            ConditionType* condition)
         {
-            StateType* startStatePtr = startState.get();
+            StateType* startStatePtr = startState;
 
-            if (m_States.find(startStatePtr) == m_States.end())
+            if (m_States.find(startState) == m_States.end())
             {
-                m_States[startStatePtr] = std::move(startState);
+                m_States[startState] = std::unique_ptr<StateType>(startState);
             }
 
-            StateType* toStatePtr = toState.get();
-            if (m_States.find(toStatePtr) == m_States.end())
+            StateType* toStatePtr = toState;
+            if (m_States.find(toState) == m_States.end())
             {
-                m_States[toStatePtr] = std::move(toState);
+                m_States[toState] = std::unique_ptr<StateType>(toState);
             }
 
             if (m_Transitions.find(startStatePtr) == m_Transitions.end())
             {
                 m_Transitions[startStatePtr] = Transitions();
             }
-            m_Transitions[startStatePtr].push_back(std::make_pair(std::move(condition), toStatePtr));
+            m_Transitions[startStatePtr].push_back(std::make_pair(std::unique_ptr<ConditionType>(condition), toStatePtr));
         }
 
         void ChangeState(StateType* newState)
@@ -66,7 +66,10 @@ namespace dae
         void PopState()
         {
             if (m_CurrentState)
+            {
                 m_CurrentState->Exit(m_Context);
+                delete m_CurrentState;
+            }
                 
             if (!m_StateStack.empty())
             {
@@ -94,7 +97,7 @@ namespace dae
                         StateType* pToState = transitionPair.second;
 
                         // Actually call Evaluate() method
-                        if (pCondition && pCondition->Evaluate(m_Context))
+                        if (pCondition && pCondition->Evaluate(m_Context,deltaTime))
                         {
                             ChangeState(pToState);
                             break;

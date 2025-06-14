@@ -3,13 +3,15 @@
 #include "Observer.h"
 
 class Text2DComponent;
+class Texture2D;
+
 class HUDComponent:public BaseComponent, public Observer
 {
 public:
 	HUDComponent(GameObject* pOwner);
 
 	void Update(float elapsedSec) override;
-	void Render()const override {}
+	void Render()const override;
 
 	virtual void Notify(GameObject* object,const std::string& event) override;
 private:
@@ -22,5 +24,7 @@ private:
 
 	Text2DComponent* m_pScoreText1;
 	Text2DComponent* m_pScoreText2;
+
+	std::shared_ptr<Texture2D> m_pLivesTexture;
 };
 

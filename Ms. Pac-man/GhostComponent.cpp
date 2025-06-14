@@ -7,6 +7,8 @@
 #include "ChaseGhostState.h"
 #include "ScatterGhostState.h"
 #include <iostream>
+#include "PlayerComponent.h"
+#include "RetryGhostState.h"
 
 GhostComponent::GhostComponent(GameObject* owner, int gridX, int gridY,GhostType ghostType):BaseComponent(owner),
 m_ghostType(ghostType)
@@ -70,8 +72,21 @@ m_ghostType(ghostType)
 			std::cout << "No m_pDeadSprite component found" << std::endl;
 		}
 	}
+}
 
+void GhostComponent::Notify(GameObject*, const std::string& event)
+{
+	if (event == "ActorDamaged")
+	{
+		RetryGhostState* pRetryState = new RetryGhostState();
+		m_StateManager->PushState(pRetryState);
+		m_ShouldMove = false;
+	}
 
+	if (event == "ActorRevived")
+	{
+		m_StateManager->PopState();
+	}
 }
 
 void GhostComponent::Update(float deltaTime)
@@ -82,6 +97,15 @@ void GhostComponent::Update(float deltaTime)
 
 	m_StateManager->Update(deltaTime);
 
+	if (IsPlayerTouched())
+	{
+		auto playerComponent = m_pPacman->GetComponent<PlayerComponent>();
+		if (playerComponent&& !playerComponent->IsDead())
+		{
+			playerComponent->LoseLife();
+		}
+	}
+
 	if(m_DelayDecision)
 		m_DelayTimer += deltaTime;
 
@@ -91,34 +115,54 @@ void GhostComponent::Update(float deltaTime)
 		m_DelayDecision = false;
 	}
 
-
-	if(!m_DelayDecision)
+	if(m_ShouldMove)
 	{
+		if (!m_DelayDecision)
+		{
+			glm::vec2 target = GetTargetPosition();
 
-		glm::vec2 target = GetTargetPosition();
-		glm::vec2 newDirection = ChooseBestDirection(target);
+			glm::vec2 newDirection = ChooseBestDirection(target);
 
-		glm::vec2 currentPos = m_pGridMovement->GetAccumulatedPosition();
+			glm::vec2 currentPos = m_pGridMovement->GetAccumulatedPosition();
 
-		m_pGridMovement->SetDesiredDirection(newDirection);
+			m_pGridMovement->SetDesiredDirection(newDirection);
+		}
+
+		m_pGridMovement->UpdatePosition(deltaTime);
+	}
+}
+
+bool GhostComponent::IsPlayerTouched() const
+{
+	if (m_pPacman == nullptr) return false;
+
+	float hitTreshold = m_pLevelComponent->TILE_WIDTH * 1.f;
+
+	if (m_pPacman->GetWorldPosition().x < GetOwner()->GetWorldPosition().x + hitTreshold &&
+		m_pPacman->GetWorldPosition().x > GetOwner()->GetWorldPosition().x - hitTreshold &&
+		m_pPacman->GetWorldPosition().y < GetOwner()->GetWorldPosition().y + hitTreshold &&
+		m_pPacman->GetWorldPosition().y > GetOwner()->GetWorldPosition().y - hitTreshold)
+	{
+		return true;
 	}
 
-	m_pGridMovement->UpdatePosition(deltaTime);
+	return false;
 }
 
 void GhostComponent::SetPacman(GameObject* pacman)
 {
 	m_pPacman = pacman;
 
-	auto pChaseState = std::make_unique<ChaseGhostState>();
-	auto pScatterState = std::make_unique<ScatterGhostState>();
-	auto pScatterCondition = std::make_unique<ScatterCondition>();
+	auto pChaseState = new ChaseGhostState();
+	auto pScatterState = new ScatterGhostState();
+	auto pScatterCondition = new ScatterCondition();
+	auto pChaseCondition = new ChaseCondition();
 
-	ChaseGhostState* pStartState = pChaseState.get();
 
-	m_StateManager = std::make_unique<dae::StateManager<GhostComponent, GhostState>>(this, pStartState);
+	m_StateManager = std::make_unique<dae::StateManager<GhostComponent, GhostState>>(this, pScatterState);
 
-	m_StateManager->AddTransition(std::move(pChaseState), std::move(pScatterState), std::move(pScatterCondition));
+	m_StateManager->AddTransition(pChaseState, pScatterState, pScatterCondition);
+	m_StateManager->AddTransition(pScatterState, pChaseState, pChaseCondition);
 }
 
 void GhostComponent::SetLevelComponent(LevelComponent* levelComponent)
@@ -134,10 +178,10 @@ void GhostComponent::SetLevelComponent(LevelComponent* levelComponent)
 	const float TILE_WIDTH = m_pLevelComponent->TILE_WIDTH;
 
 	switch (m_ghostType) {
-	case GhostType::Red: m_scatterTarget = glm::vec2(25* TILE_WIDTH, 0); break;   // Top-right
-	case GhostType::Pink:  m_scatterTarget = glm::vec2(2* TILE_WIDTH, 0); break;    // Top-left  
-	case GhostType::Cyan:   m_scatterTarget = glm::vec2(27* TILE_WIDTH, 35); break;  // Bottom-right
-	case GhostType::Orange:  m_scatterTarget = glm::vec2(0, 35* TILE_WIDTH); break;   // Bottom-left
+	case GhostType::Red: m_scatterTarget = glm::vec2(25 * TILE_WIDTH, -6 * TILE_WIDTH); break;
+	case GhostType::Pink:  m_scatterTarget = glm::vec2(2 * TILE_WIDTH, -6 * TILE_WIDTH); break;
+	case GhostType::Cyan:   m_scatterTarget = glm::vec2(27 * TILE_WIDTH, 35 * TILE_WIDTH); break;
+	case GhostType::Orange:  m_scatterTarget = glm::vec2(0, 35* TILE_WIDTH); break;
 	}
 
 	glm::vec2 borderSize = m_pLevelComponent->GetOwner()->GetWorldPosition();
@@ -153,16 +197,16 @@ glm::vec2 GhostComponent::ChooseBestDirection(const glm::vec2& target)
 	int currentGridX =static_cast<int>(std::round(accumulatedPos.x));
 	int currentGridY =static_cast<int>(std::round(accumulatedPos.y));
 
-
 	glm::vec2 direction = m_lastDirection; // if no direction is found just use the last direction
-
-	if ((currentGridX >= 12 && currentGridX <= 15)&&currentGridY == 11)return m_lastDirection;
+ m_lastDirection;
 
 	float bestDistance = FLT_MAX;
 
 	for (auto dir : m_PossibleDirections)
 	{
 		if (dir == -m_lastDirection) continue;
+
+		if ((currentGridX >= 12 && currentGridX <= 15) && currentGridY == 11 && (dir == m_PossibleDirections[0]|| dir == m_PossibleDirections[2]))continue;
 
 		TileData nextTile = m_pLevelComponent->GetTile(currentGridX + static_cast<int>(dir.x), currentGridY + static_cast<int>(dir.y));
 

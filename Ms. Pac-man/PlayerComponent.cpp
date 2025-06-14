@@ -7,10 +7,10 @@
 #include "NormalPlayerState.h"
 #include "DyingPlayerState.h"
 #include "GridMovementComponent.h"
+#include "ServiceLocator.h"
 
-PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY, int positionOffset, AudioService* audioService)
+PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY, int positionOffset)
     : BaseComponent(pOwner)
-    , m_AudioService{ audioService }
     , WAKA_PATH{ "ms_eat_dot.wav" }
 {
     m_pGridMovement = GetOwner()->AddComponent<GridMovementComponent>(gridX, gridY, positionOffset);
@@ -45,15 +45,15 @@ PlayerComponent::PlayerComponent(GameObject* pOwner, int gridX, int gridY, int p
 
 	++PlayerAmount;
 
-    auto pNormalState = std::make_unique<NormalPlayerState>();
-    auto pDyingState = std::make_unique<DyingPlayerState>();
-    auto pDeathCondition = std::make_unique<DeathCondition>();
+    auto pNormalState = new NormalPlayerState();
+    auto pDyingState = new DyingPlayerState();
+    auto pDeathCondition = new DeathCondition();
+    auto pRetryCondition = new RetryCondition();
 
-    NormalPlayerState* pStartState = pNormalState.get();
+    m_StateManager = std::make_unique<dae::StateManager<PlayerComponent, PlayerState>>(this, pNormalState);
 
-    m_StateManager = std::make_unique<dae::StateManager<PlayerComponent, PlayerState>>(this, pStartState);
-
-    m_StateManager->AddTransition(std::move(pNormalState), std::move(pDyingState), std::move(pDeathCondition));
+    m_StateManager->AddTransition(pNormalState, pDyingState, pDeathCondition);
+    m_StateManager->AddTransition(pDyingState, pNormalState, pRetryCondition);
 
 }
 
@@ -117,7 +117,7 @@ void PlayerComponent::CheckDotCollection()
     if (m_pLevelComponent->GetTile(roundedX, roundedY).type == TileType::dots)
     {
         m_pLevelComponent->SetTile(roundedX, roundedY, TileType::empty);
-        m_AudioService->PlaySound(WAKA_PATH);
+        ServiceLocator::GetAudioService().PlaySound(WAKA_PATH);
         GetSubject()->NotifyObservers(GetOwner(), "DotEaten");
     }
 }
@@ -135,5 +135,6 @@ void PlayerComponent::SetLevelComponent(LevelComponent* levelComponent)
 void PlayerComponent::LoseLife()
 {
     m_Lives.LoseLife();
+    m_IsDead = true;
     m_pSubject->NotifyObservers(GetOwner(), "ActorDamaged");
 }

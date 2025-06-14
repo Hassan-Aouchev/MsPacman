@@ -1,5 +1,4 @@
 #include <SDL.h>
-
 #if _DEBUG
 // ReSharper disable once CppUnusedIncludeDirective
 #if __has_include(<vld.h>)
@@ -33,6 +32,9 @@ void loadServices()
 {
     std::unique_ptr<SDLAudioService> sdlAudioService = std::make_unique<SDLAudioService>();
     ServiceLocator::ProvideAudioService(std::move(sdlAudioService));
+
+    InputManager::GetInstance().BindAction(SDLK_F2,
+        std::make_unique<MuteCommand>(), ButtonState::Pressed);
 }
 
 static PlayerComponent* LoadPlayer(Scene& scene, GameObject* pLevel,bool useKeyboard,int playerIndex=-1)
@@ -51,7 +53,7 @@ static PlayerComponent* LoadPlayer(Scene& scene, GameObject* pLevel,bool useKeyb
     playerObject->AddComponent<MovementInputComponent>();
     playerObject->SetPosition(0, 0);
 
-    auto* playerComponent = playerObject->AddComponent<PlayerComponent>(1, 1, 0, ServiceLocator::GetAudioService());
+    auto* playerComponent = playerObject->AddComponent<PlayerComponent>(13, 23, 0);
 
     GameObject* playerPtr = playerObject.get();
     scene.Add(std::move(playerObject));
@@ -107,17 +109,7 @@ void load()
     scene.Add(std::move(logo));
 
     // Instructions text
-    auto font = ResourceManager::GetInstance().LoadFont("Lingua.otf", 20);
-
-    auto instructionsP1 = std::make_unique<GameObject>();
-    instructionsP1->AddComponent<Text2DComponent>("player1: X for taking lives and A for adding score.", font);
-    instructionsP1->SetPosition(20, 20);
-    scene.Add(std::move(instructionsP1));
-
-    auto instructionsP2 = std::make_unique<GameObject>();
-    instructionsP2->AddComponent<Text2DComponent>("player2: x for taking lives and c for adding score.", font);
-    instructionsP2->SetPosition(20, 50);
-    scene.Add(std::move(instructionsP2));
+    auto font = ResourceManager::GetInstance().LoadFont("Emulogic-zrEw.ttf", 20);
 
     // Level
     auto levelObject = std::make_unique<GameObject>();
@@ -129,18 +121,16 @@ void load()
     levelObject->AddComponent<LevelComponent>(static_cast<float>(SCREEN_WIDTH),
         static_cast<float>(SCREEN_HEIGHT),
         "dot_1.png");
+
     GameObject* levelPtr = levelObject.get();
     scene.Add(std::move(levelObject));
 
-    // Player 1
-    
     auto player1Component = LoadPlayer(scene,levelPtr,true);
-    auto player2Component = LoadPlayer(scene, levelPtr, false, 0);
+    //auto player2Component = LoadPlayer(scene, levelPtr, false, 0);
 
     auto ghostRedObject = std::make_unique<GameObject>();
 
     auto redPtr = ghostRedObject.get();
-
     {
         ghostRedObject->SetParent(levelPtr, false);
 
@@ -159,12 +149,13 @@ void load()
 
         ghostComponent->SetPacman(player1Component->GetOwner());
 
+        player1Component->GetSubject()->AddObserver(ghostComponent);
+
         scene.Add(std::move(ghostRedObject));
         scene.Add(std::move(ghostSprite));
     }
 
     auto ghostPinkObject = std::make_unique<GameObject>();
-
     {
         ghostPinkObject->SetParent(levelPtr, false);
 
@@ -183,12 +174,13 @@ void load()
 
         ghostComponent->SetPacman(player1Component->GetOwner());
 
+        player1Component->GetSubject()->AddObserver(ghostComponent);
+
         scene.Add(std::move(ghostPinkObject));
         scene.Add(std::move(ghostSprite));
     }
 
     auto ghostCyanObject = std::make_unique<GameObject>();
-
     {
         ghostCyanObject->SetParent(levelPtr, false);
 
@@ -208,12 +200,13 @@ void load()
         ghostComponent->SetPacman(player1Component->GetOwner());
         ghostComponent->SetBlinky(redPtr);
 
+        player1Component->GetSubject()->AddObserver(ghostComponent);
+
         scene.Add(std::move(ghostCyanObject));
         scene.Add(std::move(ghostSprite));
     }
 
     auto ghostOrangeObject = std::make_unique<GameObject>();
-
     {
         ghostOrangeObject->SetParent(levelPtr, false);
 
@@ -232,12 +225,15 @@ void load()
 
         ghostComponent->SetPacman(player1Component->GetOwner());
 
+        player1Component->GetSubject()->AddObserver(ghostComponent);
+
         scene.Add(std::move(ghostOrangeObject));
         scene.Add(std::move(ghostSprite));
     }
+
     // HUD setup
     auto hudObject = std::make_unique<GameObject>();
-    hudObject->SetPosition(20, 80);
+    hudObject->SetPosition(20, 20);
 
     // Create HUD text elements
     auto player1LivesText = std::make_unique<GameObject>();
@@ -249,7 +245,7 @@ void load()
     auto player1ScoreText = std::make_unique<GameObject>();
     player1ScoreText->AddComponent<Text2DComponent>("1", font);
     player1ScoreText->SetParent(hudObject.get(), false);
-    player1ScoreText->SetLocalPosition({ 0, 30 });
+    player1ScoreText->SetLocalPosition({ 300, 0 });
     scene.Add(std::move(player1ScoreText));
 
     auto player2LivesText = std::make_unique<GameObject>();
@@ -267,7 +263,7 @@ void load()
     // Add HUD component and connect observers
     auto* hudComponent = hudObject->AddComponent<HUDComponent>();
     player1Component->GetSubject()->AddObserver(hudComponent);
-    player2Component->GetSubject()->AddObserver(hudComponent);
+    //player2Component->GetSubject()->AddObserver(hudComponent);
     scene.Add(std::move(hudObject));
 
 

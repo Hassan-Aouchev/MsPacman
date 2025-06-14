@@ -4,6 +4,8 @@
 #include "GhostState.h"
 #include <array>
 #include <glm.hpp>
+#include <string>
+#include "Observer.h"
 class Subject;
 class SpriteComponent;
 class AudioService;
@@ -24,14 +26,18 @@ enum class GhostType {
 };
 
 class GhostComponent :
-    public BaseComponent
+    public BaseComponent, public Observer
 {
 public:
     GhostComponent(GameObject* owner, int gridX, int gridY, GhostType ghostType);
 
+    void Notify(GameObject* gameObject, const std::string& event) override;
+
     void Update(float deltaTime) override;
 
     void Render() const override {};
+
+    bool IsPlayerTouched() const;
 
     void SetPacman(GameObject* pacman);
     GameObject* GetPacman()const { return m_pPacman; }
@@ -50,8 +56,15 @@ public:
     void SetTargetPosition(const glm::vec2& pos) { m_TargetPosition = pos; }
 
     const glm::vec2& GetScatterPosition()const { return m_scatterTarget; }
+    
+    void ShouldMove(bool shouldMove) { m_ShouldMove = shouldMove; }
+    void GoOutside(bool goOutside) { m_CanGoOutside = goOutside; }
+
+    bool GetMaxWaitTime()const { return m_MaxWaitTime; }
+    void SetMaxWaitTime(float maxWait) { m_MaxWaitTime = maxWait; }
 
 private:
+
     void SetLevelComponent(LevelComponent* levelComponent);
 
     std::unique_ptr<dae::StateManager<GhostComponent, GhostState>> m_StateManager = nullptr;
@@ -65,18 +78,21 @@ private:
     SpriteComponent* m_pDeadSprite = nullptr;
 
     GhostType m_ghostType{GhostType::Red};
-    glm::vec2 m_scatterTarget;
-    glm::vec2 m_lastDirection;
-    glm::vec2 m_TargetPosition;
+    glm::vec2 m_scatterTarget{};
+    glm::vec2 m_lastDirection{};
+    glm::vec2 m_TargetPosition{};
     float m_DelayTimer{};
 
-    GameObject* m_pPacman;
-    GameObject* m_pBlinkyGhost;
+    GameObject* m_pPacman = nullptr;
+    GameObject* m_pBlinkyGhost = nullptr;
 
     int m_LastGridX{};
     int m_LastGridY{};
     glm::vec2 ChooseBestDirection(const glm::vec2& target);
 
+    bool m_ShouldMove{ false };
     bool m_DelayDecision{ false };
+    bool m_CanGoOutside{ false };
+    float m_MaxWaitTime{ 10.f };
 };
 

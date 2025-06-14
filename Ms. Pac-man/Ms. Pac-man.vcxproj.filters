@@ -66,8 +66,14 @@
     <ClCompile Include="ChaseGhostState.cpp">
       <Filter>Source Files\Character\Ghost</Filter>
     </ClCompile>
+    <ClCompile Include="HouseGhostState.cpp">
+      <Filter>Source Files\Character\Ghost</Filter>
+    </ClCompile>
     <ClCompile Include="ScatterGhostState.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Character\Ghost</Filter>
+    </ClCompile>
+    <ClCompile Include="RetryGhostState.cpp">
+      <Filter>Source Files\Character\Ghost</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -110,8 +116,14 @@
     <ClInclude Include="ChaseGhostState.h">
       <Filter>Header Files\Character\Ghost</Filter>
     </ClInclude>
+    <ClInclude Include="HouseGhostState.h">
+      <Filter>Header Files\Character\Ghost</Filter>
+    </ClInclude>
     <ClInclude Include="ScatterGhostState.h">
-      <Filter>Header Files</Filter>
+      <Filter>Header Files\Character\Ghost</Filter>
+    </ClInclude>
+    <ClInclude Include="RetryGhostState.h">
+      <Filter>Header Files\Character\Ghost</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

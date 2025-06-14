@@ -120,3 +120,14 @@ void ChaseGhostState::Update(GhostComponent* ghost, float)
 		normalSprite->StopSprite();
 	}
 }
+
+bool ScatterCondition::Evaluate(GhostComponent* const, float deltaTime)
+{
+	m_Timer += deltaTime;
+	if (m_Timer > 20.f)
+	{
+		m_Timer = 0.f;
+		return true;
+	}
+	return false;
+}

@@ -15,8 +15,8 @@ namespace dae
 		virtual void Update(Context* context,float deltaTime) = 0;
 
 		virtual void HandleInput(Context*) {}
-		virtual void OnSuspend() {}
-		virtual void OnResume() {}
+		virtual void OnSuspend(Context* ) {}
+		virtual void OnResume(Context* ) {}
 	};
 	template<typename Context>
 	class Condition
@@ -24,7 +24,7 @@ namespace dae
 	public:
 		Condition() = default;
 		virtual ~Condition() = default;
-		virtual bool Evaluate(Context* const context) = 0;
+		virtual bool Evaluate(Context* const context,float deltaTime) = 0;
 	};
 }
 
