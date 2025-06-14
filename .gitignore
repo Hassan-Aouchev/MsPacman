@@ -404,3 +404,9 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Include DLLs in 3rdParty lib directories
+!3rdParty/
+!3rdParty/**/
+!3rdParty/**/lib/
+!3rdParty/**/lib/**/*.dll
